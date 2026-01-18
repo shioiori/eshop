@@ -13,6 +13,11 @@ namespace Ordering.Domain.Modals
         public string Name { get; private set; }
         public decimal Price { get; private set; }
 
+        public static Product Create(string name, decimal price)
+        {
+            return Create(ProductId.Of(Guid.NewGuid()), name, price);
+        }
+
         public static Product Create(ProductId id, string name, decimal price)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);

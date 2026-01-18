@@ -1,7 +1,9 @@
 using Basket.API.Data;
+using BuildingBlocks.Exceptions.Handler;
 using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using BuildingBlocks.Messaging.MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMediatR(config =>
@@ -27,13 +29,29 @@ builder.Services.AddStackExchangeRedisCache(options =>
 // gRPC
 builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
 {
-  options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!);
+    options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback =
+        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    };
+
+    return handler;
 });
 
-// cross-cutting concerns
+//Async Communication Services
+builder.Services.AddMessageBroker(builder.Configuration);
+
+//Cross-Cutting Services
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
 builder.Services.AddHealthChecks()
   .AddNpgSql(builder.Configuration.GetConnectionString("Database"))
   .AddRedis(builder.Configuration.GetConnectionString("Redis"));
+
 var app = builder.Build();
 app.UseHealthChecks("/health", new HealthCheckOptions
 {

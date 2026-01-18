@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_catalog:/var/lib/postgresql/data/
+
   basketdb:
     container_name: basketdb
     environment:
@@ -21,11 +22,22 @@ services:
       - "5433:5432"
     volumes:
       - postgres_catalog:/var/lib/postgresql/data/
+
   distributedcache:
     container_name: distributedcache
     restart: always
     ports:
       - "6379:6379"
+
+  orderdb:
+    container_name: orderdb
+    environment:
+      - SA_PASSWORD=Str0ng!Pwd9
+      - ACCEPT_EULA=Y
+    restart: always
+    ports:
+      - "1433:1433"
+
   catalog.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
