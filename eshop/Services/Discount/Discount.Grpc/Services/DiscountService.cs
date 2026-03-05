@@ -1,44 +1,73 @@
-﻿using Discount.Grpc.Data;
+using Discount.Grpc.Data;
 using Grpc.Core;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discount.Grpc.Services
 {
-    public class DiscountService(DiscountContext dbContext, ILogger<DiscountService> logger)
+    public class DiscountService(DiscountContext dbContext)
         : DiscountProtoService.DiscountProtoServiceBase
     {
-        public static CouponModel EmptyCoupon = new CouponModel() { Id = -1, Amount = 0 };
-        public override async Task<CouponModel> CreateDiscount(CreateDiscountRequest request, ServerCallContext context)
+        public override async Task<ProductDiscountModel> GetProductDiscount(
+            GetProductDiscountRequest request, ServerCallContext context)
         {
-            var coupon = await dbContext.Coupons.FirstOrDefaultAsync(x => x.ProductName.Equals(request.Coupon.ProductName));
-            var model = coupon.Adapt<CouponModel>();
-            return model;
-        }
+            var now = DateTime.UtcNow;
+            var discount = await dbContext.ProductDiscounts
+                .FirstOrDefaultAsync(d =>
+                    d.ProductName == request.ProductName &&
+                    d.StartDate <= now &&
+                    (d.EndDate == null || d.EndDate >= now));
 
-        public override async Task<DeleteDiscountResponse> DeleteDiscount(DeleteDiscountRequest request, ServerCallContext context)
-        {
-            var coupon = await dbContext.Coupons.FirstOrDefaultAsync(x => x.ProductName == request.ProductName);
-            if (coupon == null) return new DeleteDiscountResponse() { Success = false };
-            dbContext.Coupons.Remove(coupon);
-            await dbContext.SaveChangesAsync();
-            return new DeleteDiscountResponse() { Success = true };
-        }
+            if (discount == null)
+                return new ProductDiscountModel { Id = 0, ProductName = request.ProductName, Amount = 0 };
 
-        public override async Task<CouponModel> GetDiscount(GetDiscountRequest request, ServerCallContext context)
-        {
-            var coupon = await dbContext.Coupons.FirstOrDefaultAsync(x => x.ProductName.Equals(request.ProductName));
-            if (coupon == null)
+            return new ProductDiscountModel
             {
-                return EmptyCoupon;
-            }
-            var model = coupon.Adapt<CouponModel>();
-            return model;
+                Id = discount.Id,
+                ProductName = discount.ProductName,
+                Description = discount.Description,
+                Amount = (double)discount.Amount
+            };
         }
 
-        public override Task<CouponModel> UpdateDiscount(UpdateDiscountRequest request, ServerCallContext context)
+        public override async Task<OrderCouponModel> GetOrderCoupon(
+            GetOrderCouponRequest request, ServerCallContext context)
         {
-            return base.UpdateDiscount(request, context);
+            var now = DateTime.UtcNow;
+            var coupon = await dbContext.OrderCoupons
+                .FirstOrDefaultAsync(c => c.Code == request.Code);
+
+            if (coupon == null ||
+                coupon.UsedCount >= coupon.MaxUsage ||
+                coupon.StartDate > now ||
+                (coupon.EndDate != null && coupon.EndDate < now) ||
+                (double)coupon.MinOrderValue > request.OrderTotal)
+            {
+                return new OrderCouponModel { Id = 0, Amount = 0 };
+            }
+
+            return new OrderCouponModel
+            {
+                Id = coupon.Id,
+                Code = coupon.Code,
+                Description = coupon.Description,
+                DiscountType = (int)coupon.DiscountType,
+                Amount = (double)coupon.Amount,
+                MinOrderValue = (double)coupon.MinOrderValue
+            };
+        }
+
+        public override async Task<RedeemOrderCouponResponse> RedeemOrderCoupon(
+            RedeemOrderCouponRequest request, ServerCallContext context)
+        {
+            var coupon = await dbContext.OrderCoupons
+                .FirstOrDefaultAsync(c => c.Code == request.Code);
+
+            if (coupon == null)
+                return new RedeemOrderCouponResponse { Success = false };
+
+            coupon.UsedCount++;
+            await dbContext.SaveChangesAsync();
+            return new RedeemOrderCouponResponse { Success = true };
         }
     }
 }

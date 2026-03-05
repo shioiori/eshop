@@ -1,39 +1,46 @@
-﻿syntax = "proto3";
+syntax = "proto3";
 
 option csharp_namespace = "Discount.Grpc";
 
 package discount;
 
-service DiscountProtoService{
-	rpc GetDiscount(GetDiscountRequest) returns (CouponModel);
-	rpc CreateDiscount(CreateDiscountRequest) returns (CouponModel);
-	rpc UpdateDiscount(UpdateDiscountRequest) returns (CouponModel);
-	rpc DeleteDiscount(DeleteDiscountRequest) returns (DeleteDiscountResponse);
+service DiscountProtoService {
+    rpc GetProductDiscount(GetProductDiscountRequest) returns (ProductDiscountModel);
+    rpc GetOrderCoupon(GetOrderCouponRequest) returns (OrderCouponModel);
+    rpc RedeemOrderCoupon(RedeemOrderCouponRequest) returns (RedeemOrderCouponResponse);
 }
 
-message CouponModel{
-	int32 id = 1;
-	string productName = 2;
-	string description = 3;
-	int32 amount = 4;
+// Product discount
+message ProductDiscountModel {
+    int32 id = 1;
+    string productName = 2;
+    string description = 3;
+    double amount = 4;
 }
 
-message GetDiscountRequest{
-	string productName = 1;
+message GetProductDiscountRequest {
+    string productName = 1;
 }
 
-message CreateDiscountRequest{
-	CouponModel coupon = 1;
+// Order coupon
+message OrderCouponModel {
+    int32 id = 1;
+    string code = 2;
+    string description = 3;
+    int32 discountType = 4;
+    double amount = 5;
+    double minOrderValue = 6;
 }
 
-message UpdateDiscountRequest{
-	CouponModel coupon = 1;
+message GetOrderCouponRequest {
+    string code = 1;
+    double orderTotal = 2;
 }
 
-message DeleteDiscountRequest{
-	string productName = 1;
+message RedeemOrderCouponRequest {
+    string code = 1;
 }
 
-message DeleteDiscountResponse{
-	bool success = 1;
+message RedeemOrderCouponResponse {
+    bool success = 1;
 }

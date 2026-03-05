@@ -48,11 +48,22 @@ builder.Services.AddMessageBroker(builder.Configuration);
 //Cross-Cutting Services
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = builder.Configuration["IdentityServer:Authority"];
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters.ValidateAudience = false;
+    });
+builder.Services.AddAuthorization();
+
 builder.Services.AddHealthChecks()
   .AddNpgSql(builder.Configuration.GetConnectionString("Database"))
   .AddRedis(builder.Configuration.GetConnectionString("Redis"));
 
 var app = builder.Build();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseHealthChecks("/health", new HealthCheckOptions
 {
   ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

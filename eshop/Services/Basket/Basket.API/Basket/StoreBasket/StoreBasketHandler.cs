@@ -14,23 +14,27 @@ namespace Basket.API.Basket.StoreBasket
       RuleFor(x => x.Cart.UserName).NotEmpty();
     }
   }
-  public class StoreBasketCommandHandler(IBasketRepository repository, DiscountProtoService.DiscountProtoServiceClient discountProto) 
+  public class StoreBasketCommandHandler(IBasketRepository repository, DiscountProtoService.DiscountProtoServiceClient discountProto)
         : ICommandHandler<StoreBasketCommand, StoreBasketResult>
   {
     public async Task<StoreBasketResult> Handle(StoreBasketCommand request, CancellationToken cancellationToken)
     {
       ShoppingCart cart = request.Cart;
-      await DeductDiscount(cart, cancellationToken);
+      await ApplyProductDiscounts(cart, cancellationToken);
       await repository.StoreBasket(cart, cancellationToken);
       return new StoreBasketResult(cart.UserName);
     }
 
-    private async Task DeductDiscount(ShoppingCart cart, CancellationToken cancellationToken)
+    private async Task ApplyProductDiscounts(ShoppingCart cart, CancellationToken cancellationToken)
     {
       foreach (var item in cart.Items)
       {
-        var coupon = await discountProto.GetDiscountAsync(new GetDiscountRequest() { ProductName = item.ProductName }, cancellationToken: cancellationToken);
-        item.Price -= coupon.Amount;
+        var discount = await discountProto.GetProductDiscountAsync(
+            new GetProductDiscountRequest { ProductName = item.ProductName },
+            cancellationToken: cancellationToken);
+
+        if (discount.Amount > 0)
+          item.Price = Math.Max(0, item.Price - (decimal)discount.Amount);
       }
     }
   }
