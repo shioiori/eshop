@@ -1,5 +1,5 @@
 ﻿
-namespace Ordering.Domain.Modals
+namespace Ordering.Application.Dtos
 {
     public class CustomerDTO
     {

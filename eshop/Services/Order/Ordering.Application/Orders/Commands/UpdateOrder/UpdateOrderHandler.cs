@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.CQRS;
 using Ordering.Application.Data;
+using Ordering.Application.Dtos;
 using Ordering.Application.Exceptions;
 using Ordering.Domain.Modals;
 using Ordering.Domain.ValueObjects;
@@ -10,8 +11,7 @@ namespace Ordering.Application.Orders.Commands.UpdateOrder
     {
         public async Task<UpdateOrderResult> Handle(UpdateOrderCommand command, CancellationToken cancellationToken)
         {
-            var orderId = OrderId.Of(command.Order.Id);
-            var order = await dbContext.Orders.FindAsync([orderId], cancellationToken);
+            var order = await dbContext.Orders.FindAsync([command.Order.Id], cancellationToken);
             if (order == null) throw new OrderNotFoundException(command.Order.Id);
             UpdateOrderWithNewValues(order, command.Order);
             dbContext.Orders.Update(order);
@@ -40,12 +40,11 @@ namespace Ordering.Application.Orders.Commands.UpdateOrder
             var updatePayment = Payment.Of(orderDto.Payment.CardName, orderDto.Payment.CardNumber, orderDto.Payment.Expiration, orderDto.Payment.CVV, orderDto.Payment.PaymentMethod);
 
             order.Update(
-                OrderName.Of(orderDto.OrderName),
+                orderDto.OrderName,
                 updateBillingAddress,
                 updateShippingAddress,
                 updatePayment,
                 orderDto.Status);
-
         }
     }
 }

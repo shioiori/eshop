@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.CQRS;
 using BuildingBlocks.Pagination;
-using Ordering.Domain.Modals;
+using Ordering.Application.Dtos;
 
 namespace Ordering.Application.Orders.Queries.GetOrders
 {

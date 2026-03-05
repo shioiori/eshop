@@ -10,7 +10,7 @@ namespace Ordering.Application.Orders.Queries.GetOrderByName
         public async Task<GetOrderByNameResult> Handle(GetOrderByNameQuery request, CancellationToken cancellationToken)
         {
             var orders = await dbContext.Orders
-                .Where(o => o.OrderName.Value.ToLower().Contains(request.Name.ToLower()))
+                .Where(o => o.OrderName.ToLower().Contains(request.Name.ToLower()))
                 .ToListAsync(cancellationToken);
             return new GetOrderByNameResult(orders.ToOrderDtoList());
                 

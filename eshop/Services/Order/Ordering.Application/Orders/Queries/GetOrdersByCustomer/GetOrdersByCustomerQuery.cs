@@ -1,5 +1,5 @@
 ﻿using BuildingBlocks.CQRS;
-using Ordering.Domain.Modals;
+using Ordering.Application.Dtos;
 
 namespace Ordering.Application.Orders.Queries.GetOrdersByCustomer
 {

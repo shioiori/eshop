@@ -1,7 +1,4 @@
-﻿using Ordering.Domain.Abstractions;
-using Ordering.Domain.ValueObjects;
-
-namespace Ordering.Domain.Modals
+﻿namespace Ordering.Application.Dtos
 {
     public record OrderItemDto
         (Guid OrderId, 

@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.CQRS;
 using FluentValidation;
-using Ordering.Domain.Modals;
+using Ordering.Application.Dtos;
 
 namespace Ordering.Application.Orders.Commands.CreateOrder
 {

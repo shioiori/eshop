@@ -1,7 +1,6 @@
-﻿using Ordering.Application.Dtos;
-using Ordering.Domain.Enums;
+﻿using Ordering.Domain.Enums;
 
-namespace Ordering.Domain.Modals
+namespace Ordering.Application.Dtos
 {
     public record OrderDto 
         (Guid Id, 

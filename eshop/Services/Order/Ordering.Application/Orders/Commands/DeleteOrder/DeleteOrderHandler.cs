@@ -1,7 +1,6 @@
 ﻿using BuildingBlocks.CQRS;
 using Ordering.Application.Data;
 using Ordering.Application.Exceptions;
-using Ordering.Domain.ValueObjects;
 
 namespace Ordering.Application.Orders.Commands.DeleteOrder
 {
@@ -9,8 +8,7 @@ namespace Ordering.Application.Orders.Commands.DeleteOrder
     {
         public async Task<DeleteOrderResult> Handle(DeleteOrderCommand command, CancellationToken cancellationToken)
         {
-            var orderId = OrderId.Of(command.OrderId);
-            var order = await dbContext.Orders.FindAsync([orderId], cancellationToken);
+            var order = await dbContext.Orders.FindAsync([command.OrderId], cancellationToken);
             if (order == null) throw new OrderNotFoundException(command.OrderId);
             dbContext.Orders.Remove(order);
             var result = await dbContext.SaveChangesAsync(cancellationToken);

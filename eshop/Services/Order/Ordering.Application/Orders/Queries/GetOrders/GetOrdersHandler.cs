@@ -2,8 +2,9 @@
 using BuildingBlocks.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Data;
-using Ordering.Domain.Modals;
+using Ordering.Application.Dtos;
 using Ordering.Application.Extensions;
+using Ordering.Domain.Modals;
 
 namespace Ordering.Application.Orders.Queries.GetOrders
 {
@@ -18,7 +19,7 @@ namespace Ordering.Application.Orders.Queries.GetOrders
 
             var orders = await dbContext.Orders
                 .Include(x => x.OrderItems)
-                .OrderBy(x => x.OrderName.Value)
+                .OrderBy(x => x.OrderName)
                 .Skip(pageSize * pageIndex)
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);

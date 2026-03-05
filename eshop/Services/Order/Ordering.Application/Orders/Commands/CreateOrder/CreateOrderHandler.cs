@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.CQRS;
 using Ordering.Application.Data;
+using Ordering.Application.Dtos;
 using Ordering.Domain.Modals;
 using Ordering.Domain.ValueObjects;
 
@@ -12,13 +13,13 @@ namespace Ordering.Application.Orders.Commands.CreateOrder
             var order = CreateNewOrder(command.Order);
             dbContext.Orders.Add(order);
             await dbContext.SaveChangesAsync(cancellationToken);
-            return new CreateOrderResult(order.Id.Value);
+            return new CreateOrderResult(order.Id);
         }
 
         private Order CreateNewOrder(OrderDto orderDto)
         {
             var shippingAddress = Address.Of(
-                orderDto.ShippingAddress.FirstName, 
+                orderDto.ShippingAddress.FirstName,
                 orderDto.ShippingAddress.LastName,
                 orderDto.ShippingAddress.EmailAddress,
                 orderDto.ShippingAddress.AddressLine,
@@ -36,18 +37,18 @@ namespace Ordering.Application.Orders.Commands.CreateOrder
                 orderDto.BillingAddress.Zipcode);
 
             var order = Order.Create(
-                id: OrderId.Of(Guid.NewGuid()),
-                customerId: CustomerId.Of(orderDto.CustomerId),
-                orderName: OrderName.Of(orderDto.OrderName),
-                billingAddress: shippingAddress,
-                shippingAddress: billingAddress,
+                id: Guid.NewGuid(),
+                customerId: orderDto.CustomerId,
+                orderName: orderDto.OrderName,
+                billingAddress: billingAddress,
+                shippingAddress: shippingAddress,
                 payment: Payment.Of(orderDto.Payment.CardName, orderDto.Payment.CardNumber, orderDto.Payment.Expiration, orderDto.Payment.CVV, orderDto.Payment.PaymentMethod),
-                status: orderDto.Status 
+                status: orderDto.Status
             );
 
             foreach (var orderItem in orderDto.OrderItems)
             {
-                order.Add(ProductId.Of(orderItem.ProductId), orderItem.Quantity, orderItem.Price);
+                order.Add(orderItem.ProductId, orderItem.Quantity, orderItem.Price);
             }
             return order;
         }

@@ -2,12 +2,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ordering.Domain.Enums;
 using Ordering.Domain.Modals;
-using Ordering.Domain.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ordering.Infrastructure.Data.Configurations
 {
@@ -16,9 +10,8 @@ namespace Ordering.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Order> builder)
         {
             builder.HasKey(x => x.Id);
-            
-            builder.Property(x => x.Id).HasConversion(orderId => orderId.Value, dbId => OrderId.Of(dbId));
-            builder.Property(x => x.OrderName).HasConversion(orderName => orderName.Value, dbName => OrderName.Of(dbName));
+
+            builder.Property(x => x.OrderName).HasMaxLength(100).IsRequired();
 
             builder.HasOne<Customer>()
                    .WithMany()

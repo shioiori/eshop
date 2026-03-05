@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Behaviors;
-using BuildingBlocks.Messaging.MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -16,7 +15,6 @@ namespace Ordering.Application
                 cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             });
 
-            services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
             return services;
         }
     }

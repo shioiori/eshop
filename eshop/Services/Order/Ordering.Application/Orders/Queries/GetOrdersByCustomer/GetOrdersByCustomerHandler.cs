@@ -9,7 +9,7 @@ namespace Ordering.Application.Orders.Queries.GetOrdersByCustomer
         public Task<GetOrdersByCustomerResult> Handle(GetOrdersByCustomerQuery request, CancellationToken cancellationToken)
         {
             var orders = dbContext.Orders
-                .Where(o => o.CustomerId.Value == request.CustomerId);
+                .Where(o => o.CustomerId == request.CustomerId);
             return Task.FromResult(new GetOrdersByCustomerResult(orders.ToOrderDtoList()));
         }
     }
