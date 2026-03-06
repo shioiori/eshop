@@ -59,7 +59,7 @@ public class AuthEndpoints : ICarterModule
         {
             var result = await context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
             var user = await userManager.FindByIdAsync(result.Principal!.GetClaim(Claims.Subject)!);
-            if (user == null)
+            if (user == null || !user.IsActive)
                 return Results.Forbid(authenticationSchemes: [OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
 
             var principal = await CreateUserPrincipalAsync(user, userManager, dbContext, request.GetScopes());
@@ -88,6 +88,9 @@ public class AuthEndpoints : ICarterModule
 
         var user = await userManager.GetUserAsync(result.Principal)
             ?? throw new InvalidOperationException("The user cannot be retrieved.");
+
+        if (!user.IsActive)
+            return Results.Forbid(authenticationSchemes: [OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
 
         var principal = await CreateUserPrincipalAsync(user, userManager, dbContext, request.GetScopes());
         return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);

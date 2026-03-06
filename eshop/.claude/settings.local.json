@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(dotnet build \"d:/PERSONAL/eshopapi/eshop/Services/Order/Ordering.Infrastructure/Ordering.Infrastructure.csproj\")"
-    ]
-  }
-}
