@@ -23,8 +23,8 @@ namespace Ordering.Infrastructure.Data.Extensions
                 var order1 = Order.Create(new Guid("66e6b873-2497-407c-9d37-9909e54f866c"),
                     new Guid("fa7498b1-49f4-4aca-b7b0-b85ca880e8d8"),
                     "Order 1",
-                    Address.Of("123 Main St", "CityA", "johndoe@yopmail.com", "StateA", "12345", "CountryA", "100000"),
-                    Address.Of("123 Main St", "CityA", "mike@yopmail.com", "StateA", "12345", "CountryA", "100000"),
+                    Address.Of("John", "Doe", "johndoe@yopmail.com", "123 Main St", "CountryA", "StateA", "12345"),
+                    Address.Of("John", "Doe", "johndoe@yopmail.com", "123 Main St", "CountryA", "StateA", "12345"),
                     Payment.Of("Credit", "**** **** **** 1234", "2030/12", "016", "Paypal"),
                     OrderStatus.Draft);
                 order1.Add(new Guid("d6365f9d-7935-47e8-9d92-8b028fbecff9"), 2, 10.0m);

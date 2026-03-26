@@ -54,7 +54,7 @@ namespace Ordering.Infrastructure.Data.Configurations
             builder.Property(x => x.Status).HasDefaultValue(OrderStatus.Draft)
                 .HasConversion(x => x.ToString(), dbStatus => (OrderStatus)Enum.Parse(typeof(OrderStatus), dbStatus));
             
-            builder.Property(x => x.TotalPrice);
+            builder.Ignore(x => x.TotalPrice);
         }
     }
 }

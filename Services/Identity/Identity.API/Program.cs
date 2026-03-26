@@ -9,11 +9,14 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    await app.Services.CreateScope().ServiceProvider
-        .GetRequiredService<ApplicationDbContext>()
-        .Database.MigrateAsync();
+    using (var scope = app.Services.CreateScope())
+    {
+        await scope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext>()
+            .Database.MigrateAsync();
 
-    await SeedData.InitializeAsync(app.Services.CreateScope().ServiceProvider);
+        await SeedData.InitializeAsync(scope.ServiceProvider);
+    }
 }
 
 app.UseIdentityServices();

@@ -17,6 +17,12 @@ builder.Services.AddCarter();
 builder.Services.AddMarten(option =>
 {
     option.Connection(builder.Configuration.GetConnectionString("Database"));
+    option.CreateDatabasesForTenants(c =>
+    {
+        c.ForTenant()
+            .CheckAgainstPgDatabase()
+            .WithOwner("postgres");
+    });
 }).UseLightweightSessions();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
